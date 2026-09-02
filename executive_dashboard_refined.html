@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Collections Recovery — Executive Dashboard</title>
+<style>
+  :root{
+    --bg:#f5f7fa; --card:#ffffff; --ink:#172033; --muted:#687386; --line:#e5e9f0;
+    --blue:#2f6fed; --blue-soft:#edf3ff; --green:#14805e; --green-soft:#eaf7f2;
+    --amber:#a96308; --amber-soft:#fff5e4; --red:#b9473f; --red-soft:#fff0ee;
+    --navy:#253858; --shadow:0 8px 24px rgba(23,32,51,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.35}
+  .wrap{max-width:1420px;margin:0 auto;padding:24px 28px 34px}
+  .top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:16px}
+  h1{font-size:25px;line-height:1.15;margin:0 0 6px;letter-spacing:-.02em}
+  .subtitle{font-size:13px;color:var(--muted)}
+  .meta{text-align:right;font-size:11.5px;color:var(--muted);line-height:1.55;white-space:nowrap}
+  .verdict{background:linear-gradient(90deg,#fff7ed,#fff);border:1px solid #f0d8b5;border-radius:14px;padding:15px 18px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;margin-bottom:15px;box-shadow:var(--shadow)}
+  .tag{background:var(--amber);color:#fff;border-radius:999px;padding:5px 10px;font-size:10.5px;font-weight:800;letter-spacing:.04em;white-space:nowrap;margin-top:2px}
+  .verdict strong{font-size:15px}
+  .verdict p{margin:4px 0 0;color:#55412b;font-size:13px}
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px;box-shadow:var(--shadow);min-height:96px}
+  .kpi .label{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  .kpi .value{font-size:23px;font-weight:750;margin:5px 0 3px;letter-spacing:-.02em}
+  .kpi .note{font-size:11.5px;color:var(--muted)}
+  .up{color:var(--green)} .warn{color:var(--amber)} .bad{color:var(--red)}
+  .grid{display:grid;grid-template-columns:1.35fr .95fr;gap:14px;margin-bottom:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 17px;box-shadow:var(--shadow)}
+  .card h2{font-size:14.5px;margin:0 0 4px}
+  .cap{font-size:11.5px;color:var(--muted);margin:0 0 13px}
+  .months{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:190px;padding:10px 4px 0;border-bottom:1px solid var(--line)}
+  .barbox{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px}
+  .amt{font-size:10.5px;color:var(--muted)}
+  .bar{width:72%;min-width:22px;border-radius:6px 6px 2px 2px;background:#b8c8e8;position:relative}
+  .bar.jun{background:#9fb5df}.bar.jul{background:var(--blue)}
+  .month{font-size:11px;color:var(--muted);padding-top:3px}
+  .callout{margin-top:10px;background:var(--blue-soft);border-radius:9px;padding:9px 11px;font-size:11.5px;color:#344d7d}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+  .compare .box{border:1px solid var(--line);border-radius:10px;padding:11px}
+  .compare .box .small{font-size:10.5px;color:var(--muted);text-transform:uppercase;font-weight:700}
+  .compare .box .big{font-size:20px;font-weight:750;margin-top:4px}
+  .simple-list{display:grid;gap:8px;margin-top:4px}
+  .simple-row{display:grid;grid-template-columns:128px 1fr 58px;gap:8px;align-items:center;font-size:11.5px}
+  .track{height:8px;background:#eef1f5;border-radius:999px;overflow:hidden}
+  .fill{height:100%;border-radius:999px;background:var(--blue)}
+  .fill.soft{background:#8fa8d7}.fill.green{background:var(--green)}.fill.amber{background:var(--amber)}
+  .pct{text-align:right;font-weight:700}
+  .lower{display:grid;grid-template-columns:1fr 1.07fr 1.02fr;gap:14px}
+  .issue-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .issue{background:#f8fafc;border:1px solid var(--line);border-radius:9px;padding:10px}
+  .issue b{display:block;font-size:11.5px;margin-bottom:3px}
+  .issue span{font-size:10.8px;color:var(--muted)}
+  .decision{background:linear-gradient(180deg,#f7fbff,#fff);border-color:#d8e5fb}
+  .decision-title{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:7px}
+  .pick{background:var(--blue);color:#fff;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;letter-spacing:.04em}
+  .decision h3{font-size:18px;margin:0;color:var(--navy)}
+  .why{font-size:11.5px;color:var(--muted);margin:0 0 10px}
+  .scenario{display:grid;grid-template-columns:1.05fr .75fr .75fr .75fr;gap:5px;font-size:10.8px}
+  .scenario div{padding:6px 5px;border-bottom:1px solid var(--line)}
+  .scenario .head{font-size:9.5px;text-transform:uppercase;color:var(--muted);font-weight:800}
+  .foot{margin-top:12px;font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;gap:20px}
+  .legend{display:flex;gap:12px;flex-wrap:wrap}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:1px}
+  .fact{background:var(--green)} .evidence{background:var(--blue)} .hypo{background:var(--amber)}
+  @media(max-width:1050px){.kpis{grid-template-columns:repeat(3,1fr)}.grid,.lower{grid-template-columns:1fr}.meta{display:none}}
+  @media(max-width:650px){.wrap{padding:16px}.kpis{grid-template-columns:repeat(2,1fr)}.verdict{grid-template-columns:1fr}.months{gap:3px}.simple-row{grid-template-columns:105px 1fr 50px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Collections recovery — what really changed?</h1>
+      <div class="subtitle">Executive view · Jan–Jul 2026 complete months · August is partial and excluded from month-on-month conclusions</div>
+    </div>
+    <div class="meta">Data through 08 Aug 2026<br>Golden layer: cleaned payments + account-level targeting<br>Prepared for leadership</div>
+  </div>
+
+  <div class="verdict">
+    <div class="tag">BOTTOM LINE</div>
+    <div>
+      <strong>Recovery improved in July, but the data does not support a clean “11% operational improvement” claim.</strong>
+      <p>Clean total recovery increased by about <b>6.7%</b> from June to July. Some targeted-portfolio measures improved by <b>9–12%</b>, but the same-account cohort improved by only <b>1.3%</b>. This points to a mix/targeting effect, not an 11% across-the-board improvement.</p>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="label">Clean recovery · Jun→Jul</div><div class="value up">+6.7%</div><div class="note">₹175.6M → ₹187.2M</div></div>
+    <div class="kpi"><div class="label">Recovery / targeted account</div><div class="value up">+12.3%</div><div class="note">Improved, but mix changed</div></div>
+    <div class="kpi"><div class="label">Same-account cohort</div><div class="value">+1.3%</div><div class="note">Best apples-to-apples view</div></div>
+    <div class="kpi"><div class="label">Payer conversion</div><div class="value up">+9.0%</div><div class="note">More targeted accounts paid</div></div>
+    <div class="kpi"><div class="label">Recovery / outstanding</div><div class="value up">+9.2%</div><div class="note">Balance-adjusted improvement</div></div>
+    <div class="kpi"><div class="label">Call contact rate</div><div class="value bad">−5.2%</div><div class="note">Calling efficiency did not improve</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Monthly cleaned recovery</h2>
+      <p class="cap">Total successful recovery after removing duplicate payment IDs. July improved versus June, but monthly totals still move up and down.</p>
+      <div class="months">
+        <div class="barbox"><div class="amt">₹187.2M</div><div class="bar" style="height:88%"></div><div class="month">Jan</div></div>
+        <div class="barbox"><div class="amt">₹170.1M</div><div class="bar" style="height:72%"></div><div class="month">Feb</div></div>
+        <div class="barbox"><div class="amt">₹188.9M</div><div class="bar" style="height:90%"></div><div class="month">Mar</div></div>
+        <div class="barbox"><div class="amt">₹175.1M</div><div class="bar" style="height:77%"></div><div class="month">Apr</div></div>
+        <div class="barbox"><div class="amt">₹184.3M</div><div class="bar" style="height:85%"></div><div class="month">May</div></div>
+        <div class="barbox"><div class="amt">₹175.6M</div><div class="bar jun" style="height:77%"></div><div class="month"><b>Jun</b></div></div>
+        <div class="barbox"><div class="amt">₹187.2M</div><div class="bar jul" style="height:88%"></div><div class="month"><b>Jul</b></div></div>
+      </div>
+      <div class="callout"><b>What this means:</b> July was better than June, but one month of growth is not enough to call it a sustained operational trend.</div>
+    </div>
+
+    <div class="card">
+      <h2>Why “11%” can be misleading</h2>
+      <p class="cap">The answer changes depending on what we divide recovery by and which accounts we compare.</p>
+      <div class="compare">
+        <div class="box"><div class="small">All targeted accounts</div><div class="big up">+12.3%</div><div class="note">Recovery per account</div></div>
+        <div class="box"><div class="small">Same accounts in both months</div><div class="big">+1.3%</div><div class="note">Cleaner comparison</div></div>
+      </div>
+      <div class="simple-list">
+        <div class="simple-row"><span>Total recovery</span><div class="track"><div class="fill soft" style="width:54%"></div></div><span class="pct">+6.7%</span></div>
+        <div class="simple-row"><span>Payer conversion</span><div class="track"><div class="fill" style="width:73%"></div></div><span class="pct">+9.0%</span></div>
+        <div class="simple-row"><span>Recovery / balance</span><div class="track"><div class="fill" style="width:75%"></div></div><span class="pct">+9.2%</span></div>
+        <div class="simple-row"><span>Recovery / target</span><div class="track"><div class="fill green" style="width:100%"></div></div><span class="pct">+12.3%</span></div>
+        <div class="simple-row"><span>Same-account cohort</span><div class="track"><div class="fill amber" style="width:11%"></div></div><span class="pct">+1.3%</span></div>
+      </div>
+      <div class="callout" style="background:var(--amber-soft);color:#6d4a18"><b>Simple takeaway:</b> July's targeted population was different. Part of the improvement came from choosing a better set of accounts, not from every account becoming easier to collect.</div>
+    </div>
+  </div>
+
+  <div class="lower">
+    <div class="card">
+      <h2>What changed</h2>
+      <p class="cap">The evidence points more toward targeting/mix than better calling operations.</p>
+      <div class="issue-grid">
+        <div class="issue"><b>New July targets performed better</b><span>July-only targeted accounts recovered more per account than June-only targets.</span></div>
+        <div class="issue"><b>Contact rate fell</b><span>Calls were not connecting better, even while recovery went up.</span></div>
+        <div class="issue"><b>Same-account uplift was small</b><span>Accounts present in both months improved only around 1.3%.</span></div>
+        <div class="issue"><b>Result depends on the metric</b><span>Different valid definitions produce roughly 6.7% to 12.3% improvement.</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Data issues leadership should know</h2>
+      <p class="cap">These do not make the analysis useless, but they limit what we can claim confidently.</p>
+      <div class="issue-grid">
+        <div class="issue"><b>Duplicate payment events</b><span>Payment IDs repeat and can overstate recovery if we simply sum raw rows.</span></div>
+        <div class="issue"><b>Borrower IDs conflict</b><span>Event-level borrower IDs often disagree with the account master, so account ID is the safer key.</span></div>
+        <div class="issue"><b>Call attribution is unreliable</b><span>Attempt/disposition account IDs often do not match the linked call, so RPC/PTP-by-call claims are low confidence.</span></div>
+        <div class="issue"><b>August is incomplete</b><span>Only eight days are available, so it should not be compared with a full month.</span></div>
+      </div>
+    </div>
+
+    <div class="card decision">
+      <div class="decision-title"><h2 style="margin:0">₹10 Cr recommendation</h2><span class="pick">TOP PICK</span></div>
+      <h3>Better borrower targeting</h3>
+      <p class="why">Why: July's improvement is most consistent with a better mix of targeted accounts, while call contact performance actually declined. Targeting is the lever with the clearest evidence in this dataset.</p>
+      <div class="scenario">
+        <div class="head">Scenario</div><div class="head">Lift</div><div class="head">Recovery / yr</div><div class="head">1st-yr ROI</div>
+        <div>Downside</div><div>3%</div><div>~₹6.5 Cr</div><div class="bad">−35%</div>
+        <div><b>Base case</b></div><div><b>5%</b></div><div><b>~₹10.9 Cr</b></div><div class="up"><b>~9%</b></div>
+        <div>Upside</div><div>7%</div><div>~₹15.2 Cr</div><div class="up">~52%</div>
+      </div>
+      <div class="callout"><b>Base-case break-even:</b> about 11 months. Treat this as a planning scenario, not a proven causal result; validate with a holdout test before full rollout.</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="legend"><span><i class="dot fact"></i>Fact</span><span><i class="dot evidence"></i>Strong evidence</span><span><i class="dot hypo"></i>Scenario / assumption</span></div>
+    <div>Golden dataset = cleaned, deduplicated and reconciled account-level data used as the single source for these metrics.</div>
+  </div>
+</div>
+</body>
+</html>
